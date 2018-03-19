@@ -1,0 +1,25 @@
+{
+  "name": "mqtt-to-timescaledb",
+  "version": "1.0.0",
+  "description": "Persist MQTT messages to TimescaleDB",
+  "main": "app.js",
+  "dependencies": {
+    "dotenv": "^5.0.1",
+    "mqtt": "^2.16.0",
+    "pg": "^7.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tobymurray/mqtt-to-timescaledb.git"
+  },
+  "author": "Toby Murray",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tobymurray/mqtt-to-timescaledb/issues"
+  },
+  "homepage": "https://github.com/tobymurray/mqtt-to-timescaledb#readme"
+}
