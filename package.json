@@ -4,9 +4,9 @@
   "description": "Persist MQTT messages to TimescaleDB",
   "main": "app.js",
   "dependencies": {
-    "dotenv": "^5.0.1",
-    "mqtt": "^2.16.0",
-    "pg": "^7.4.1"
+    "dotenv": "^8.2.0",
+    "mqtt": "^3.0.0",
+    "pg": "^7.12.1"
   },
   "devDependencies": {},
   "scripts": {
