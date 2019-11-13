@@ -19,6 +19,8 @@ mqttClient.on('message', (topic, message) => {
     } else if (topic === 'esp32/temperature') {
         insertTemperature(json.datetime, json.temperature_0, 0, json.mac);
         insertTemperature(json.datetime, json.temperature_1, 1, json.mac);
+    } else if (topic === 'esp32/heap') {
+        insertHeap(parseInt(json.free_heap_size), parseInt(json.low_water_mark), json.mac).catch(error => console.error(error));
     } else if (topic === 'esp32/2/battery') {
         let voltage = json.voltage.substring(0, json.voltage.length - 1); // Remove the trailing 'V'
         let state_of_charge = json.state_of_charge.substring(0, json.state_of_charge.length - 1); // Remove the trailing '%'
@@ -26,7 +28,9 @@ mqttClient.on('message', (topic, message) => {
     } else if (topic === 'esp32/2/temperature') {
         insertTemperature(json.datetime, json.temperature_0, 0, json.mac);
         insertTemperature(json.datetime, json.temperature_1, 1, json.mac);
-    }  else {
+    } else if (topic === 'esp32/2/heap') {
+        insertHeap(parseInt(json.free_heap_size), parseInt(json.low_water_mark), json.mac).catch(error => console.error(error));
+    } else {
         console.log("Unexpected message: " + topic + ": " + message);
     }
 });
@@ -59,6 +63,24 @@ async function insertTemperature(time, temperature, sensorNumber, mac) {
     }
     try {
         const result = await client.query('INSERT INTO temperature(client_time, temperature, sensor, mac) VALUES($1, $2, $3, $4);', [time, temperature, sensorNumber, mac]);
+        if (result.rowCount != 1) {
+            console.warn("Row count was not equal to 1 in: ", result);
+        }
+    } finally {
+        client.release()
+    }
+}
+
+async function insertHeap(free_heap, low_water_mark, mac) {
+    let client;
+    try {
+        client = await pool.connect()
+    } catch (e) {
+        console.error("Failed to connect to database pool due to: " + e.message)
+        return;
+    }
+    try {
+        const result = await client.query('INSERT INTO heap(free_heap, low_water_mark, mac) VALUES($1, $2, $3);', [free_heap, low_water_mark, mac]);
         if (result.rowCount != 1) {
             console.warn("Row count was not equal to 1 in: ", result);
         }
