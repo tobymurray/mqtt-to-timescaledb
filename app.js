@@ -25,7 +25,13 @@ mqttClient.on('message', (topic, message) => {
 });
 
 async function insertBattery(time, voltage, stateOfCharge) {
-    const client = await pool.connect()
+    let client;
+    try {
+        client = await pool.connect()
+    } catch (e) {
+        console.error("Failed to connect to database pool due to: " + e.message)
+        return;
+    }
     try {
         const result = await client.query('INSERT INTO battery(voltage, state_of_charge, client_time) VALUES($1, $2, $3);', [voltage, stateOfCharge, time]);
         if (result.rowCount != 1) {
@@ -37,7 +43,13 @@ async function insertBattery(time, voltage, stateOfCharge) {
 }
 
 async function insertTemperature(time, temperature, sensorNumber) {
-    const client = await pool.connect()
+    let client;
+    try {
+        client = await pool.connect()
+    } catch (e) {
+        console.error("Failed to connect to database pool due to: " + e.message)
+        return;
+    }
     try {
         const result = await client.query('INSERT INTO temperature(client_time, temperature, sensor) VALUES($1, $2, $3);', [time, temperature, sensorNumber]);
         if (result.rowCount != 1) {
