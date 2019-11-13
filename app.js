@@ -19,7 +19,14 @@ mqttClient.on('message', (topic, message) => {
     } else if (topic === 'esp32/temperature') {
         insertTemperature(json.datetime, json.temperature_0, 0, json.mac);
         insertTemperature(json.datetime, json.temperature_1, 1, json.mac);
-    } else {
+    } else if (topic === 'esp32/2/battery') {
+        let voltage = json.voltage.substring(0, json.voltage.length - 1); // Remove the trailing 'V'
+        let state_of_charge = json.state_of_charge.substring(0, json.state_of_charge.length - 1); // Remove the trailing '%'
+        insertBattery(json.datetime, voltage, state_of_charge, json.mac).catch(error => console.error(error));
+    } else if (topic === 'esp32/2/temperature') {
+        insertTemperature(json.datetime, json.temperature_0, 0, json.mac);
+        insertTemperature(json.datetime, json.temperature_1, 1, json.mac);
+    }  else {
         console.log("Unexpected message: " + topic + ": " + message);
     }
 });
