@@ -14,17 +14,17 @@ mqttClient.on('message', (topic, message) => {
 
     if (topic === 'esp32/battery') {
         let voltage = json.voltage.substring(0, json.voltage.length - 1); // Remove the trailing 'V'
-        let state_of_charge = json.state_of_charge.substring(0, json.voltage.length - 1); // Remove the trailing '%'
-        insertBattery(json.datetime, voltage, state_of_charge).catch(error => console.error(error));
+        let state_of_charge = json.state_of_charge.substring(0, json.state_of_charge.length - 1); // Remove the trailing '%'
+        insertBattery(json.datetime, voltage, state_of_charge, json.mac).catch(error => console.error(error));
     } else if (topic === 'esp32/temperature') {
-        insertTemperature(json.datetime, json.temperature_0, 0);
-        insertTemperature(json.datetime, json.temperature_1, 1);
+        insertTemperature(json.datetime, json.temperature_0, 0, json.mac);
+        insertTemperature(json.datetime, json.temperature_1, 1, json.mac);
     } else {
         console.log("Unexpected message: " + topic + ": " + message);
     }
 });
 
-async function insertBattery(time, voltage, stateOfCharge) {
+async function insertBattery(time, voltage, stateOfCharge, mac) {
     let client;
     try {
         client = await pool.connect()
@@ -33,7 +33,7 @@ async function insertBattery(time, voltage, stateOfCharge) {
         return;
     }
     try {
-        const result = await client.query('INSERT INTO battery(voltage, state_of_charge, client_time) VALUES($1, $2, $3);', [voltage, stateOfCharge, time]);
+        const result = await client.query('INSERT INTO battery(voltage, state_of_charge, client_time, mac) VALUES($1, $2, $3, $4);', [voltage, stateOfCharge, time, mac]);
         if (result.rowCount != 1) {
             console.warn("Row count was not equal to 1 in: ", result);
         }
@@ -42,7 +42,7 @@ async function insertBattery(time, voltage, stateOfCharge) {
     }
 }
 
-async function insertTemperature(time, temperature, sensorNumber) {
+async function insertTemperature(time, temperature, sensorNumber, mac) {
     let client;
     try {
         client = await pool.connect()
@@ -51,7 +51,7 @@ async function insertTemperature(time, temperature, sensorNumber) {
         return;
     }
     try {
-        const result = await client.query('INSERT INTO temperature(client_time, temperature, sensor) VALUES($1, $2, $3);', [time, temperature, sensorNumber]);
+        const result = await client.query('INSERT INTO temperature(client_time, temperature, sensor, mac) VALUES($1, $2, $3, $4);', [time, temperature, sensorNumber, mac]);
         if (result.rowCount != 1) {
             console.warn("Row count was not equal to 1 in: ", result);
         }
