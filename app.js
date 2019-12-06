@@ -30,6 +30,8 @@ mqttClient.on('message', (topic, message) => {
         insertTemperature(json.datetime, json.temperature_1, 1, json.mac);
     } else if (topic === 'esp32/2/heap') {
         insertHeap(parseInt(json.free_heap_size), parseInt(json.low_water_mark), json.mac).catch(error => console.error(error));
+    } else if (topic === 'esp32/3/thermocouple') {
+        insertThermocouple(parseInt(json.cold_junction), parseInt(json.temperature), json.mac);
     } else {
         console.log("Unexpected message: " + topic + ": " + message);
     }
@@ -81,6 +83,24 @@ async function insertHeap(free_heap, low_water_mark, mac) {
     }
     try {
         const result = await client.query('INSERT INTO heap(free_heap, low_water_mark, mac) VALUES($1, $2, $3);', [free_heap, low_water_mark, mac]);
+        if (result.rowCount != 1) {
+            console.warn("Row count was not equal to 1 in: ", result);
+        }
+    } finally {
+        client.release()
+    }
+}
+
+async function insertThermocouple(cold_junction, temperature, mac) {
+    let client;
+    try {
+        client = await pool.connect()
+    } catch (e) {
+        console.error("Failed to connect to database pool due to: " + e.message)
+        return;
+    }
+    try {
+        const result = await client.query('INSERT INTO thermocouple(cold_junction, temperature, mac) VALUES($1, $2, $3);', [cold_junction, temperature, mac]);
         if (result.rowCount != 1) {
             console.warn("Row count was not equal to 1 in: ", result);
         }
