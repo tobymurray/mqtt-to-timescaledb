@@ -2,7 +2,28 @@ require('dotenv').config()
 const mqtt = require('mqtt');
 const mqttClient = mqtt.connect('mqtt://192.168.1.16');
 const { Pool, Client } = require('pg')
+const pm2 = require('pm2');
 const pool = new Pool()
+
+pm2.launchBus((err, bus) => {
+    console.log('connected', bus);
+
+    bus.on('process:exception', function(data) {
+      console.log(arguments);
+    });
+  
+    bus.on('log:err', function(data) {
+      console.log('logged error',arguments);
+    });
+  
+    bus.on('reconnect attempt', function() {
+      console.log('Bus reconnecting');
+    });
+  
+    bus.on('close', function() {
+      console.log('Bus closed');
+    });
+});
 
 mqttClient.on('connect', () => {
     console.log("Connected!");
