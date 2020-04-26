@@ -6,8 +6,8 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "mqtt": "^3.0.0",
-    "pg": "^7.12.1",
-    "pm2": "^4.2.0"
+    "pg": "^8.0.3",
+    "pm2": "^4.4.0"
   },
   "devDependencies": {},
   "scripts": {
