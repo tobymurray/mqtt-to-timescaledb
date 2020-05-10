@@ -37,6 +37,8 @@ mqttClient.on('message', (topic, message) => {
         insertTemperature(json.datetime, json.temperature, json.mac);
     } else if (topic === 'incubator/humidity') {
         insertHumidity(json.datetime, json.relative_humidity, json.mac);
+    } else if (topic === 'incubator/eggTurner') {
+        insertEggTurner(json.datetime, json.status, json.mac);
     } else {
         console.log("Unexpected message: " + topic + ": " + message);
     }
@@ -70,6 +72,26 @@ async function insertHumidity(time, humidity, mac) {
 
     try {
         const result = await client.query('INSERT INTO humidity(client_time, humidity, mac) VALUES($1, $2, $3);', [time, humidity, mac])
+            .catch((e) => {
+                console.error("Failed to connect to database pool due to: " + e.message);
+                return;
+            });
+        if (result.rowCount != 1) {
+            console.warn("Row count was not equal to 1 in: ", result);
+        }
+    } finally {
+        client.release()
+    }
+}
+
+async function insertEggTurner(time, status, mac) {
+    let client = await pool.connect().catch((e) => {
+        console.error("Failed to connect to database pool due to: " + e.message);
+        return;
+    });
+
+    try {
+        const result = await client.query('INSERT INTO egg_turner(client_time, status, mac) VALUES($1, $2, $3);', [time, status, mac])
             .catch((e) => {
                 console.error("Failed to connect to database pool due to: " + e.message);
                 return;
