@@ -1,6 +1,6 @@
 require('dotenv').config()
 const mqtt = require('mqtt');
-const mqttClient = mqtt.connect('mqtt://192.168.1.198');
+const mqttClient = mqtt.connect('mqtt://192.168.1.59:1884');
 const { Pool, Client } = require('pg')
 const pm2 = require('pm2');
 const pool = new Pool()
@@ -31,7 +31,13 @@ mqttClient.on('connect', () => {
 });
 
 mqttClient.on('message', (topic, message) => {
-    let json = JSON.parse(message.toString());
+    let json;
+    try {
+        json = JSON.parse(message.toString());
+    } catch (err) {
+        console.error("Can't parse message as JSON: " + message);
+        return;
+    }
 
     if (topic === 'incubator/temperature') {
         insertTemperature(json.datetime, json.temperature, json.mac);
