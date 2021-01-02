@@ -1,3 +1,5 @@
+console.log("Starting everything up!");
+
 require('dotenv').config()
 const mqtt = require('mqtt');
 const mqttClient = mqtt.connect('mqtt://192.168.1.59:1884');
