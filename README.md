@@ -7,4 +7,6 @@ PGUSER=postgres
 PGPASSWORD=password
 PGDATABASE=mqtt_database
 PGPORT=5432
+
+MQTT_BROKER_ADDRESS=mqtt://192.168.1.1
 ```
