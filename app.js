@@ -1,7 +1,7 @@
 require('dotenv').config()
 const mqtt = require('mqtt');
-const mqttClient = mqtt.connect('mqtt://192.168.1.16');
-const { Pool, Client } = require('pg')
+const mqttClient = mqtt.connect(process.env.MQTT_BROKER_ADDRESS);
+const { Pool } = require('pg')
 const pm2 = require('pm2');
 const pool = new Pool()
 
